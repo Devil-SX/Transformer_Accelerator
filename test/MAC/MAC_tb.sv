@@ -9,8 +9,8 @@ reg rst_n;
 // real a;
 // real b;
 // real out;
-logic `SINGLE a;
-logic `SINGLE b;
+Scalar a;
+Scalar b;
 logic `SINGLE out;
 
 shortreal con;
@@ -18,17 +18,20 @@ shortreal con;
 MAC u_dut(
     .clk(clk),
     .rst_n(rst_n),
-    .a(a),
-    .b(b),
+    .data(a),
+    .weight(b),
     .out(out)
 );
 
 
 initial begin
-    a = $shortrealtobits(shortreal'(5.0));
-    b = $shortrealtobits(shortreal'(5.0));
-    $display("a = %f", a);
-    $display("b = %f", b);
+    a.value = $shortrealtobits(shortreal'(5.0));
+    b.value = $shortrealtobits(shortreal'(5.0));
+    a.valid = 1'b1;
+    b.valid = 1'b1;
+
+    $display("a = %f", $bitstoshortreal(a.value));
+    $display("b = %f", $bitstoshortreal(b.value));
 
     rst_n = 1;
     #20 rst_n = 0;

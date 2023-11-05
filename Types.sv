@@ -24,5 +24,19 @@ Examples:
 1 10000000 0000000 = -2
 */
 
+// Single Float
+`define SINGLE_WIDTH 32
+`define SINGLE [`SINGLE_WIDTH-1:0]
 
-`endif TYPES_SV
+// INT8
+`define INT8_WIDTH 8
+`define INT8
+
+
+`define SYS_ARRAY_LEN 6
+typedef struct packed {
+    logic `SINGLE value;
+    logic valid;
+} Scalar;
+
+`endif

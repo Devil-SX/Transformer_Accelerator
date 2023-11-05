@@ -9,10 +9,11 @@ include_paths := \
 
 source_files := \
     $(root_path)/MM/MAC.sv \
-    MAC_tb.sv
+	$(root_path)/MM/SystolicArray.sv \
+    SystolicArray_tb.sv
 
 VCS := vcs
-VCS_FLAGS := -sverilog -timescale=1ns/1ns
+VCS_FLAGS := -sverilog -timescale=1ns/1ns 
 SIM_EXECUTABLE := simv
 
 all: compile run
@@ -31,4 +32,3 @@ clean:
 	rm -rf out
 
 .PHONY: all compile run clean
-
