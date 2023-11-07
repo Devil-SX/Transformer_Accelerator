@@ -26,7 +26,7 @@ Examples:
 
 // Single Float
 `define SINGLE_WIDTH 32
-`define SINGLE [`SINGLE_WIDTH-1:0]
+`define SINGLE logic[`SINGLE_WIDTH-1:0]
 
 // INT8
 `define INT8_WIDTH 8
@@ -35,8 +35,28 @@ Examples:
 
 `define SYS_ARRAY_LEN 6
 typedef struct packed {
-    logic `SINGLE value;
+    `SINGLE value;
     logic valid;
 } Scalar;
+
+function automatic Scalar  _ScalarZero;
+    _ScalarZero.value = `SINGLE_WIDTH'b0;
+    _ScalarZero.valid = 1'b0;
+endfunction
+
+typedef Scalar ScalarArray [`SYS_ARRAY_LEN];
+function automatic ScalarArray  _ScalarZeroArray;
+    for(int i = 0; i < `SYS_ARRAY_LEN; i++) begin
+        _ScalarZeroArray[i] = _ScalarZero();
+    end
+endfunction
+
+typedef ScalarArray Scalar2DArray [`SYS_ARRAY_LEN];
+function automatic Scalar2DArray  _ScalarZero2DArray;
+    for(int i = 0; i < `SYS_ARRAY_LEN; i++) begin
+        _ScalarZero2DArray[i] = _ScalarZeroArray();
+    end
+endfunction
+
 
 `endif

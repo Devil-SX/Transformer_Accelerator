@@ -17,14 +17,8 @@ module SystolicArray (
   Scalar shift_reg_row[`SYS_ARRAY_LEN][`SYS_ARRAY_LEN];
 
   task  reset();
-    for (int i = 0; i < `SYS_ARRAY_LEN; i = i + 1)
-    begin
-      for (int step = 0; step < `SYS_ARRAY_LEN; step = step + 1)
-      begin
-        shift_reg_column[i][step] <= '{`SINGLE_WIDTH'b0, 1'b0};
-        shift_reg_row[i][step] <= '{`SINGLE_WIDTH'b0, 1'b0};
-      end
-    end
+    shift_reg_column <= _ScalarZero2DArray();
+    shift_reg_row <= _ScalarZero2DArray();
   endtask
 
   task shift_reg();
@@ -44,13 +38,14 @@ module SystolicArray (
 
   // Array Manipulation not supported by VCS yet
   // assign valid =  (shift_reg_column.and() with (item.valid)) & (shift_reg_row.and() with (item.valid));
+  logic _ready;
   always @(*) begin
-    ready = 1'b1;
+    _ready = 1'b1;
     for (int i = 0; i < `SYS_ARRAY_LEN; i = i + 1) 
       for (int step = 0; step < `SYS_ARRAY_LEN; step = step + 1)
         begin
-          ready = ready & (~shift_reg_column[step][i].valid);
-          ready = ready & (~shift_reg_row[i][step].valid);
+          _ready = _ready & (~shift_reg_column[step][i].valid);
+          _ready = _ready & (~shift_reg_row[i][step].valid);
         end
   end
 
@@ -64,6 +59,7 @@ module SystolicArray (
     else
     begin
       shift_reg();
+      ready <= _ready; // 要打一拍留给 MAC 产生正确数据
     end
   end
 

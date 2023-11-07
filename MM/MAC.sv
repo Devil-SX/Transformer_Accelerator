@@ -13,11 +13,11 @@ module MAC(
     input Scalar data,
     input Scalar weight,
 
-    output logic `SINGLE out
+    output `SINGLE out
 );
 
-logic `SINGLE a_mul_b;
-logic `SINGLE out_sum;
+`SINGLE a_mul_b;
+`SINGLE out_sum;
 
 Multiplication u_mul(
     .a_operand(data.value),

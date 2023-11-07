@@ -6,8 +6,9 @@ module SystolicArray_tb;
     reg rst_n;
     Scalar column[`SYS_ARRAY_LEN];
     Scalar row[`SYS_ARRAY_LEN];
-    logic `SINGLE out[`SYS_ARRAY_LEN][`SYS_ARRAY_LEN];
+    `SINGLE out[`SYS_ARRAY_LEN][`SYS_ARRAY_LEN];
     logic ready;
+    logic clear;
 
     SystolicArray u_dut(
         .clk(clk),
@@ -15,10 +16,12 @@ module SystolicArray_tb;
         .column(column),
         .row(row),
         .ready(ready),
+        .clear(clear),
         .out(out)
     );
 
     initial begin
+        clear = 0;
         for(int i=0; i<`SYS_ARRAY_LEN; i++) begin
             column[i] = '{$shortrealtobits(shortreal'(5.0)), 1'b1};
             row[i] = '{$shortrealtobits(shortreal'(3.0)), 1'b1};
