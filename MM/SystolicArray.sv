@@ -9,7 +9,7 @@ module SystolicArray (
     input  Scalar column[`SYS_ARRAY_LEN],
     input  Scalar row[`SYS_ARRAY_LEN],
 
-    output `SINGLE out[`SYS_ARRAY_LEN][`SYS_ARRAY_LEN],
+    output `NUMBER out[`SYS_ARRAY_LEN][`SYS_ARRAY_LEN],
     output logic ready
   );
   

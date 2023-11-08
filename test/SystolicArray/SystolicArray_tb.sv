@@ -6,7 +6,7 @@ module SystolicArray_tb;
     reg rst_n;
     Scalar column[`SYS_ARRAY_LEN];
     Scalar row[`SYS_ARRAY_LEN];
-    `SINGLE out[`SYS_ARRAY_LEN][`SYS_ARRAY_LEN];
+    `NUMBER out[`SYS_ARRAY_LEN][`SYS_ARRAY_LEN];
     logic ready;
     logic clear;
 

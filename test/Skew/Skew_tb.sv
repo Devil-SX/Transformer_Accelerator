@@ -1,20 +1,20 @@
 `include "Types.sv"
 
-module MM_tb;
+module Skew_tb;
 
     // Global Inputs
     reg clk;
     reg rst_n;
 
     // Data Generation
-    `SINGLE column[`SYS_ARRAY_LEN];
+    `NUMBER column[`SYS_ARRAY_LEN];
     logic column_valid;
-    `SINGLE row[`SYS_ARRAY_LEN];
+    `NUMBER row[`SYS_ARRAY_LEN];
     logic row_valid;
     logic clear;
 
     // Outputs
-    `SINGLE out[`SYS_ARRAY_LEN][`SYS_ARRAY_LEN];
+    `NUMBER out[`SYS_ARRAY_LEN][`SYS_ARRAY_LEN];
     logic ready;
 
     // Hidden Variables

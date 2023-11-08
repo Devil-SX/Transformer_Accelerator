@@ -1,46 +1,22 @@
 `ifndef TYPES_SV
 `define TYPES_SV
 
-// Fixed Float
-`define FIXED_WIDTH 32
-`define FIXED_POINT 16
-`define FIXED [`FIXED_WIDTH-1:0]
+`include "MathTypes.sv"
 
-// Brain Float
-typedef struct packed {
-    logic sign;
-    logic [7:0] exponent; 
-    logic [6:0] fraction;
-} BFloat;
-/*
-Exponent:
-Exponent Bias = 127 
-00H | 0, -0 | subnormal numbers
-01H -> FEH | normalized value
-FFH | infinity | NaN
-
-Examples:
-0 01111111 0000000 = 1 (Hidden One)
-1 10000000 0000000 = -2
-*/
-
-// Single Float
-`define SINGLE_WIDTH 32
-`define SINGLE logic[`SINGLE_WIDTH-1:0]
-
-// INT8
-`define INT8_WIDTH 8
-`define INT8
+// 接口设计，封装数据类型，以便更换底层算术类型
+`define NUMBER `SINGLE
+`define NUMBER_WIDTH `SINGLE_WIDTH
 
 
+// Systolic Array Definition
 `define SYS_ARRAY_LEN 6
 typedef struct packed {
-    `SINGLE value;
+    `NUMBER value;
     logic valid;
 } Scalar;
 
 function automatic Scalar  _ScalarZero;
-    _ScalarZero.value = `SINGLE_WIDTH'b0;
+    _ScalarZero.value = `NUMBER_WIDTH'b0;
     _ScalarZero.valid = 1'b0;
 endfunction
 
@@ -58,5 +34,48 @@ function automatic Scalar2DArray  _ScalarZero2DArray;
     end
 endfunction
 
+
+// Bus Definition
+`define BUS_ARRAY_WIDTH `SYS_ARRAY_LEN 
+
+interface WritePort;
+    logic wvalid;
+    logic wready;
+    `NUMBER wdata [`BUS_ARRAY_WIDTH];
+
+    modport master(
+        ouput wavlid,
+        input wready,
+        output wdata
+    );
+    modport slave(
+        input wvalid,
+        output wready,
+        input wdata
+    );
+endinterface
+
+interface ReadPort;
+    logic rvalid;
+    logic rready;
+    `NUMBER rdata [`BUS_ARRAY_WIDTH];
+
+    modport master(
+        ouput rvalid,
+        input rready,
+        input rdata
+    );
+
+    modport slave(
+        input rvalid,
+        output rready,
+        ouput rdata
+    );
+
+endinterface
+
+`define SLAVE_ADDR `SYS_ARRAY_LEN
+`define CORE_NUMBER 8
+`define MASTER_ADDR `SLAVE_ADDR+$clog2(`CORE_NUMBER)
 
 `endif

@@ -12,7 +12,7 @@ source_files := \
 	$(root_path)/MM/Skew.sv \
     $(root_path)/MM/MAC.sv \
 	$(root_path)/MM/SystolicArray.sv \
-    MM_tb.sv
+    Skew_tb.sv
 
 VCS := vcs
 VCS_FLAGS := -sverilog -timescale=1ns/1ns 

@@ -11,7 +11,7 @@ reg rst_n;
 // real out;
 Scalar a;
 Scalar b;
-`SINGLE out;
+`NUMBER out;
 
 shortreal con;
 

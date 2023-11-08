@@ -4,15 +4,19 @@ module Skew(
     input clk,
     input rst_n,
 
-    input `SINGLE data_in[`SYS_ARRAY_LEN],
+    // Fetcher ->
+    input `NUMBER data_in[`SYS_ARRAY_LEN],
     input logic data_valid,
+
+    // -> Systolic Array
     output Scalar scalar_out[`SYS_ARRAY_LEN]
 );
 
 Scalar data_scalar[`SYS_ARRAY_LEN];
 always_comb begin 
-    for(int i = 0; i < `SYS_ARRAY_LEN; i++) begin
-        data_scalar[i].value = data_in[i];
+    for(int i = 0; i < `SYS_ARRAY_LEN; i++) begin 
+        if (data_valid) data_scalar[i].value = data_in[i];
+        else data_scalar[i].value = _ScalarZero();
         data_scalar[i].valid = data_valid;
     end
 end
