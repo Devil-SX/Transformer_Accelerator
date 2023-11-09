@@ -8,11 +8,12 @@ include_paths := \
 	"$(fp_path)/Multiplication"
 
 source_files := \
+	$(root_path)/MM/Fetcher.sv \
 	$(root_path)/MM/ShiftedReg.sv \
 	$(root_path)/MM/Skew.sv \
     $(root_path)/MM/MAC.sv \
 	$(root_path)/MM/SystolicArray.sv \
-    Skew_tb.sv
+    Fetcher_tb.sv
 
 VCS := vcs
 VCS_FLAGS := -sverilog -timescale=1ns/1ns 

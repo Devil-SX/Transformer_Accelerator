@@ -24,7 +24,7 @@ module Fetcher (
     // Bus ->
     input cs,
     WritePort.slave wport, // Busy state as wready
-    input logic [`SLAVE_ADDR] waddr,
+    input logic [`SLAVE_ADDR-1:0] waddr,
 
     // -> Skew
     input logic feed,
@@ -34,7 +34,7 @@ module Fetcher (
 
 
 `NUMBER matrix_buf [`SYS_ARRAY_LEN][`SYS_ARRAY_LEN];
-FetcherState State, Next_State = Fetcher_Init;
+FetcherState State, Next_State;
 logic [$clog2(`SYS_ARRAY_LEN)-1:0] point;
 
 
@@ -62,7 +62,7 @@ always_comb begin
         Fetcher_Read: begin
             data_valid = 1'b0;
             wport.wready = 1'b1;
-            if(wport.wvalid && cs) matrix_buf[waddr] = wport.data;
+            if(wport.wvalid && cs) matrix_buf[waddr] = wport.wdata;
             else matrix_buf[waddr] = matrix_buf[waddr];
         end
         Fetcher_Feed: begin
@@ -78,14 +78,17 @@ always_comb begin
 end
 
 
-task reset()
-    State <= Fetcher_Read;
-    point <= 0;
-endtask
+// task reset()
+//     State <= Fetcher_Read;
+//     point <= 0;
+// endtask
 
 always @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
-        reset();
+        // reset();
+        // 我不知道为什么这里编译就过不了，但是之前 Systolic Array 调用 Task 就可以
+        State <= Fetcher_Read;
+        point <= 0;
     end
     else begin
         State <= Next_State;

@@ -44,7 +44,7 @@ interface WritePort;
     `NUMBER wdata [`BUS_ARRAY_WIDTH];
 
     modport master(
-        ouput wavlid,
+        output wvalid,
         input wready,
         output wdata
     );
@@ -61,7 +61,7 @@ interface ReadPort;
     `NUMBER rdata [`BUS_ARRAY_WIDTH];
 
     modport master(
-        ouput rvalid,
+        output rvalid,
         input rready,
         input rdata
     );
@@ -69,7 +69,7 @@ interface ReadPort;
     modport slave(
         input rvalid,
         output rready,
-        ouput rdata
+        output rdata
     );
 
 endinterface

@@ -7,40 +7,53 @@ module Fetcher_tb;
     reg rst_n;
 
     // Data Generation
-    `NUMBER column[`SYS_ARRAY_LEN];
-    logic column_valid;
-    `NUMBER row[`SYS_ARRAY_LEN];
-    logic row_valid;
+    `NUMBER data_column[`BUS_ARRAY_WIDTH];
+    `NUMBER data_row[`BUS_ARRAY_WIDTH];
     logic clear;
+    logic feed;
+    // Column Bus Interface
+    WritePort column_wport();
+    logic [`SLAVE_ADDR-1:0] column_waddr; 
+    // Row Bus Interface
+    WritePort row_wport();
+    logic [`SLAVE_ADDR-1:0] row_waddr; 
+
 
     // Outputs
     `NUMBER out[`SYS_ARRAY_LEN][`SYS_ARRAY_LEN];
     logic ready;
 
     // Hidden Variables
+    // Fetcher Outputs
+    `NUMBER column[`SYS_ARRAY_LEN];
+    logic column_valid;
+    `NUMBER row[`SYS_ARRAY_LEN];
+    logic row_valid;
+
+    // Skew Outputs
     Scalar column_skew[`SYS_ARRAY_LEN];
     Scalar row_skew[`SYS_ARRAY_LEN];
 
     Fetcher u_fetcher_column(
         .clk(clk),
         .rst_n(rst_n),
-        .cs(),
-        .wport(),
-        .waddr(),
-        .feed(),
-        .data_out(),
-        .data_valid()
+        .cs(1'b1),
+        .wport(column_wport),
+        .waddr(column_waddr),
+        .feed(feed),
+        .data_out(column),
+        .data_valid(column_valid)
     );
 
-    Fetcher u_fetcher_column(
+    Fetcher u_fetcher_row(
         .clk(clk),
         .rst_n(rst_n),
-        .cs(),
-        .wport(),
-        .waddr(),
-        .feed(),
-        .data_out(),
-        .data_valid()
+        .cs(1'b1),
+        .wport(row_wport),
+        .waddr(row_waddr),
+        .feed(feed),
+        .data_out(row),
+        .data_valid(row_valid)
     );
 
     Skew u_skew_column(
@@ -69,34 +82,82 @@ module Fetcher_tb;
         .out(out)
     );
 
+
+    task write_buf;
+        input [`SLAVE_ADDR-1:0] addr;
+        input `NUMBER data [`BUS_ARRAY_WIDTH];
+        // ref WritePort wport;     // Cannot Pass Interface as arguments
+        ref `NUMBER wdata[`BUS_ARRAY_WIDTH];
+        ref logic wvalid;
+        ref logic [`SLAVE_ADDR-1:0] waddr;
+        begin
+            waddr = addr;
+            wdata = data;
+            wvalid = 1'b1;
+            @(posedge clk);
+            wvalid = 1'b0;
+        end
+    endtask
+
+    task print_out;
+        $write("\n");
+        $write("ready: %d\n", ready);
+        for(int i=0; i<`SYS_ARRAY_LEN; i++) begin
+            for(int j=0; j<`SYS_ARRAY_LEN; j++) begin
+                $write("%0.2f\t",$bitstoshortreal(out[i][j]));
+            end
+            $write("\n");
+        end
+    endtask
+
+
     int counter = 0;
     initial begin
-        column_valid = 1'b1;
-        row_valid = 1'b1;
-        for(int i=0; i<`SYS_ARRAY_LEN; i++) begin
-            column[i] = $shortrealtobits(shortreal'(5.0));
-            row[i] = $shortrealtobits(shortreal'(3.0));
+        // Generate Data
+        for(int i=0; i<`BUS_ARRAY_WIDTH; i++) begin
+            data_column[i] = $shortrealtobits(shortreal'(5.0));
+            data_row[i] = $shortrealtobits(shortreal'(3.0));
         end
-        
         clear = 0;
+        feed = 0;
+
+        // Set Reset
         rst_n = 1;
         #20 rst_n = 0;
         $display("set zero now!");
         #20 rst_n = 1;
         $display("set one now!");
 
-        // Generate Data
-        for(int i=0;i<`SYS_ARRAY_LEN; i++) begin
-            @(posedge clk) $write("Generate Data %d", i);
-        end
-        // End Generate
-        @(posedge clk) begin
-            column_valid = 1'b0;
-            row_valid = 1'b0;
-        end
+        // WriteFetcher
+        fork
+            for(int i=0; i<2**`SLAVE_ADDR; i++) begin
+                write_buf(i, 
+                    data_column, 
+                    column_wport.wdata, 
+                    column_wport.wvalid,
+                    column_waddr);
+            end
+            for(int i=0; i<2**`SLAVE_ADDR; i++) begin
+                write_buf(i, 
+                    data_row, 
+                    row_wport.wdata, 
+                    row_wport.wvalid,
+                    row_waddr);
+            end
+        join
+
+        // Feed
+        @(posedge clk) feed = 1'b1;
+        $write("Feed Now!");
+        @(posedge clk) feed = 1'b0;
+
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
 
         forever begin
             @(posedge clk) begin
+                print_out();
                 if(ready == 1'b1) $finish;
                 counter = counter + 1;
                 if(counter >= 500) begin
@@ -117,23 +178,12 @@ module Fetcher_tb;
         end
     end
 
-    always @(posedge clk) begin
-        $write("\n");
-        $write("ready: %d\n", ready);
-        for(int i=0; i<`SYS_ARRAY_LEN; i++) begin
-            for(int j=0; j<`SYS_ARRAY_LEN; j++) begin
-                $write("%0.2f\t",$bitstoshortreal(out[i][j]));
-            end
-            $write("\n");
-        end
-    end
-
 
     initial begin
         // $fsdbDumpfile("wave.fsdb");
         // $fsdbDumpvars(0, SystolicArray_tb);
         $dumpfile("wave.vcd");
-        $dumpvars(0, MM_tb);
+        $dumpvars(0, Fetcher_tb);
     end
 
 endmodule
